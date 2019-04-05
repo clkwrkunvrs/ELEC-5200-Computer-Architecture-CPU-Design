@@ -1,0 +1,1 @@
+This is a repository for the CPU I designed in ELEC 5200 Computer Architecture at Auurn Unversity in Fall 2018. I have also included project reports and the ISA explanation fr each of the 14 instructions.
