@@ -1,0 +1,4 @@
+1101001001000110 //plusi r1,r1,2 add 8 to whatever value is in register 1
+1011000001000000 //lw r0,000000($r1) load whatever value is in address at R1 into R0
+1101000001000010 //plusi r0,r1,2 add 2 to whatever value is in register 0
+1100000001000000; //sw r0,r1,000000($R1) store whatever is in R0 into memory at the address in 000000($R1)

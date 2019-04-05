@@ -1,0 +1,63 @@
+My Instruction,Description,Instruction Type,Op Code (4 bits),Assembly Example,C example,Justification,Registers,Rnum(10),Rname,Rpurpose
+fkeq,fork equal,I,0000,"loop: fkeq $m2,$m3
+//other assembly","for (;;){
+if (m2 == m3) continue; else break;
+else break;
+}",satisfies '==' operator,000,0,$m0,storage register
+fkne,fork not equal,I,0001,"loop: fkne $m2,$m3
+//other assembly","for (;;){
+ if (m2 != m3) continue;
+ else break;
+}",satisfies '!=' operator,001,1,$m1,storage register
+fklt,fork less than,I,0010,"loop: fklt $m2,$m3
+//other assembly","for (;;){
+ if (m2 < m3) continue;
+ else break;
+}",satisfies '<' operator,010,2,$m2,storage register
+fkle,fork less than or equal,I,0011,"loop: fkle $m2,$m3
+//other assembly","for (;;){
+ if (m2 <= m3) continue; 
+ else break;
+}",satisfies '<=' operator,011,3,$m3,storage register
+plus,add,R,0100,"plus $m2,$m2,$t1",m2 = m2 + t1;,satisfies '+' operator,110,6,$t2,temp register
+min,subtract,R,0101,"sub $m1,$m1,$m2",m1 = m1 - m2;,satisfies '-' operator,111,7,$ret,return address
+and,and,R,0110,"and $m1,$m1,$m2",m1 = m1&m2;,satisfies bitwise 'and',,8,PC,program counter
+or,or,R,111,"and $m1,$m1,$m2",m1 = m1|m2;,satisfied bitwise 'or',,,,
+fkgt,fork greater than,I,1000,"loop: fkgt $m2,$m3
+//other assembly","for (;;){
+ if (m2 > m3) continue; 
+ else break;
+}",satisfies '>' operator,100,4,$t0,temp register
+fkge,fork greater than or equal,I,1001,"loop: fkge $m2,$m3
+//other assembly","for (;;){
+ if (m2 >= m3) continue; 
+ else break;
+}",satisfies '>=' operator,101,5,$t1,temp register
+jmp,jump,J,1010,jmp popsciles;,"main(){
+popscicles();
+}
+
+int popscicles(void){
+...
+}",jump to subroutine,,,,
+ldw,load word,I,1011,"ldw $t1, 0($t0) 
+plusi $t1, $t1, 10
+stw $t1, 0($t0)","int *k;
+*k = k + 10;","fetches word from 
+memory into registers",,,,
+stw,store word,I,1100,see load,see load,"stores word into memory
+from registers",,,,
+plusi,add constant to register value,I,1101,,,"Needed to add constant values 
+to register values",,,,
+lupi,Load upper immediate,I,1000,,,"loads only upper byte of
+word with value from memory
+or constant",,,,
+stop,halt,n/a,1111,end program,,end program,,,,
+Register Types,,,,,,,,,,
+Rtype,,,,,,,,,,
+block,op,rd,rt,rs,shamt,,,,,
+#bits,4,3,3,3,3,,,,,
+,,,,,,,,,,
+I type,,,,,,J type,,,,
+block,op,rt,rs,address,,block,op,address,,
+#bits,4,3,3,6,,#bits,4,12,,
