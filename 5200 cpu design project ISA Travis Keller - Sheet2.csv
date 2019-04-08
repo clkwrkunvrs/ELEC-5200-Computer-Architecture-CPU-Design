@@ -1,0 +1,75 @@
+I/O Description and Function,,,,,Truth Table,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,"Instruction
+Name",Control Signals,,,,,,,,,,,,,,control signals flow lsb up,,,,,,,,,,,,
+PC,"Program Counter keeps track of where in program memory the 
+program is currently reading/running from",,,,,fkgt,fkle,fklt,fkge,fkeq,fkne,ALU Control,Jump,RegWrite,RFMux,MemtoReg,RegDst,MemRead/Write,,MemtoReg,MemRead/Write,Jump,fkgt,fkle,fklt,fkge,fkeq,fkne,ALU Control,RFMux,RegWrite,RegDst
+,,,,,fkeq,0,0,0,0,1,0,01,0,0,0,x,x,0,,x,0,0,0,0,0,0,1,0,01,0,0,x
+,,,,,fkne,0,0,0,0,0,1,01,0,0,0,x,x,0,,x,0,0,0,0,0,0,0,1,01,0,0,x
+"Program 
+mem",Memory where the program instructions are held,,,,fklt,0,0,1,0,0,0,01,0,0,0,x,x,0,,x,0,0,0,0,1,0,0,0,01,0,0,x
+adder,Add 4 to the current address of the program counter,,,,fkle,0,1,0,0,0,0,01,0,0,0,x,x,0,,x,0,0,0,1,0,0,0,0,01,0,0,x
+mux1,"If RFMux = 1, op code was R-type and thus
+register file output is fed to ALU1. Otherwise,
+op code was an I-type instruction and the address
+or constant in bits 0-5 should be fed to ALU1 after it
+is sign-extended",,,,fkgt,1,0,0,0,0,0,01,0,0,0,x,x,0,,x,0,0,1,0,0,0,0,0,01,0,0,x
+mux2,"If a branch instruction was executed, send PC+4+the 
+address called by the branch instruction to Mux3",,,,fkge,0,0,0,1,0,0,01,0,0,0,x,x,0,,x,0,0,0,0,0,1,0,0,01,0,0,x
+mux3,"if Jump = 1, the PC should be set to the jump address
+shifted left by one bit to get the word address. Otherwise, 
+set the PC to the address called in the I-type instruction",,,,plus,0,0,0,0,0,0,00,0,1,1,0,1,0,,0,0,0,0,0,0,0,0,0,00,1,1,1
+mux4,"for load word and store word. If memtoreg is high,
+the load word op code was exectued and the write register
+should be written with data from the appropriate address.
+Otherwise in the case of store word, data should merely be wrtten 
+to memory.
+",,,,min,0,0,0,0,0,0,01,0,1,1,0,1,0,,0,0,0,0,0,0,0,0,0,01,1,1,1
+mux5,"If RegDst = 1, Mux 5 will recognize that an R-type 
+instruction was executed and set Rd (write register) to bits 3-5 of the
+instruction. Otherwise, the for a load word operation, bits
+6-8 of the instruction are set as the write register",,,,and,0,0,0,0,0,0,10,0,1,1,0,1,0,,0,0,0,0,0,0,0,0,0,10,1,1,1
+alu1,"Performs primary arithmetic operations.
+In my design that would be add, subtract, 
+bitwise AND, bitwsie OR",,,,or,0,0,0,0,0,0,11,0,1,1,0,1,0,,0,0,0,0,0,0,0,0,0,11,1,1,1
+alu2,"calculates new address PC should set to after
+I-type instruction is called (branch)",,,,jmp,x,x,x,x,x,x,xx,1,0,x,x,x,0,,x,0,1,x,x,x,x,x,x,xx,x,0,x
+register file,"File containing each of the register value. 
+This is where read and write registers are selected. 
+Registers are read from and written to according to 
+the state of the 'RegWrite' control flag.",,,,ldw,0,0,0,0,0,0,00,0,1,0,1,0,0,,1,0,0,0,0,0,0,0,0,00,0,1,0
+sign extend,"pad the MSB of the 12-bit branch address with 4 duplicates
+of the sign-bit (MSB) to bring its bit-length to a full 16 bit address
+in preparation for adding it to the current PC+4 address",,,,stw,0,0,0,0,0,0,00,0,0,0,x,x,1,,x,1,0,0,0,0,0,0,0,00,1,0,x
+left shift 1,Shift the branch or jump increment by 1 byte to get the word address,,,,plusi,0,0,0,0,0,0,00,0,1,0,0,0,0,,0,0,0,0,0,0,0,0,0,00,0,1,0
+data mem,"Since this a Von Neuman architecture, the program and data memory
+ are separate. 
+Therefore, data mem represents the system memory",,,,lupi,0,0,0,0,0,0,00,0,1,0,1,0,0,,1,0,0,0,0,0,0,0,0,00,0,1,0
+xor1,xor the Overflow and Negative Flags,,,,stop,x,x,x,x,x,x,XX,0,x,x,x,x,0,,x,0,0,x,x,x,x,x,x,XX,x,x,x
+xor2,"only one branch operation (opcode) should be valid at a time.
+ If the xor results in 1, branch. Otherwise, don't branch.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,Branch Instructions Operation Table,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Control Lines,,,,,fklt,(N xor V),,,,and fklt,,,,,,,,,,,,,,,,,,,,,,
+fkgt,"if high, evaluate fkgt operation",,,,fkle,(Z or (NxorV)),,,,and fkle,,,,,,,,,,,,,,,,,,,,,,
+fkle,"if high, evaluate fkle operation",,,,fkgt,~(Z or (NxorV)),,,,and fkgt,,,,,,,,,,,,,,,,,,,,,,
+fklt,"if high, evaluate fklt operation",,,,fkge,~(N xor V),,,,and fkgt,,,,,,,,,,,,,,,,,,,,,,
+fkge,"if high, evaluate fkge operation",,,,fkeq,Z,,,,and fkeq,,,,,,,,,,,,,,,,,,,,,,
+fkne,"if high, evaluate fkne operation",,,,fkne,~Z,,,,and fkne,,,,,,,,,,,,,,,,,,,,,,
+fkeq,"if high, evaluate fkeq operation",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+jump ,"if jump signal high, mux 3 should
+set the program counter to the
+address set in the jump instruction
+shifted left 1 bit to get word address",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+regdst,"depending on the type of instruction,
+sets write register to Rd, or Rt. 1 for R.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+memtoreg,"determines whether new data is sent to
+write register in register file. 0 for no 1 for yes",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ALU Control,"this signal determines what arithmetic operation
+ALU1 will perform",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"mem
+ read/write","signal/flag to tell data memory whether
+the CPU wants to read from it or write to it",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+RFMux,"If RFMux = 1, op code was R-type and thus
+register file output is fed to ALU1. Otherwise,
+op code was an I-type instruction and the address
+or constant in bits 0-5 should be fed to ALU1 after it
+is sign-extended",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
